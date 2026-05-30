@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auditor Office — Business Compliance & Legal Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: #f9f8f6; color: #1a1a2e; }
+    h1,h2,h3,h4,h5 { font-family: 'Plus Jakarta Sans', sans-serif; }
+    a { text-decoration: none; color: inherit; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+<template id="__bundler_thumbnail" data-bg-color="#0d1b2a">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0d1b2a"/>
+    <rect x="80" y="80" width="48" height="48" rx="8" fill="#c8860a"/>
+    <rect x="96" y="96" width="16" height="16" rx="2" fill="white" opacity="0.9"/>
+    <rect x="116" y="96" width="16" height="16" rx="2" fill="white" opacity="0.6"/>
+    <rect x="96" y="116" width="16" height="16" rx="2" fill="white" opacity="0.6"/>
+    <rect x="116" y="116" width="16" height="16" rx="2" fill="white" opacity="0.9"/>
+    <rect x="148" y="93" width="160" height="18" rx="4" fill="white" opacity="0.9"/>
+    <rect x="80" y="200" width="480" height="52" rx="6" fill="white" opacity="0.85"/>
+    <rect x="80" y="268" width="360" height="24" rx="4" fill="white" opacity="0.3"/>
+    <rect x="80" y="308" width="300" height="24" rx="4" fill="white" opacity="0.2"/>
+    <rect x="80" y="380" width="160" height="48" rx="8" fill="#c8860a"/>
+    <rect x="260" y="380" width="160" height="48" rx="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+    <rect x="680" y="140" width="440" height="500" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <rect x="708" y="180" width="240" height="14" rx="3" fill="rgba(255,255,255,0.15)"/>
+    <rect x="708" y="214" width="380" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    <rect x="708" y="260" width="380" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    <rect x="708" y="306" width="380" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    <rect x="708" y="352" width="380" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+  </svg>
+</template>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accentColor": "#c8860a",
+      "navBg": "white",
+      "heroStyle": "split",
+      "showStats": true,
+      "ctaText": "Get Started Today"
+    }/*EDITMODE-END*/;
+
+    const { useState, useEffect, useRef } = React;
+
+    // ─── DATA ───────────────────────────────────────────────────────────────
+    const services = [
+      {
+        category: "Start Your Business",
+        icon: "◈",
+        items: [
+          "Private Limited Company Registration",
+          "LLP Registration",
+          "One Person Company (OPC)",
+          "Section 8 Company",
+          "Startup India Registration",
+          "Udyam / MSME Registration",
+        ],
+      },
+      {
+        category: "Tax & Compliance",
+        icon: "◉",
+        items: [
+          "GST Registration & Filing",
+          "Income Tax Returns",
+          "TDS Filing",
+          "ROC Compliance",
+          "FSSAI Licence",
+          "Import / Export (IE) Code",
+        ],
+      },
+      {
+        category: "Manage & Grow",
+        icon: "◫",
+        items: [
+          "Bookkeeping & Accounting",
+          "Payroll Services",
+          "Virtual / Fractional CFO",
+          "FDI Compliance",
+          "Due Diligence",
+          "Director Appointment / Removal",
+        ],
+      },
+      {
+        category: "Corporate Changes",
+        icon: "◪",
+        items: [
+          "Company Name Change",
+          "Change of Address",
+          "Share Transfer",
+          "Increase Authorised Capital",
+          "MOA & AOA Amendments",
+          "Closure of Pvt Ltd / LLP",
+        ],
+      },
+    ];
+
+    const stats = [
+      { number: "500+", label: "Businesses Served" },
+      { number: "25+", label: "Years of Expertise" },
+      { number: "98%", label: "Client Satisfaction" },
+      { number: "15+", label: "Expert Professionals" },
+    ];
+
+    const steps = [
+      { n: "01", title: "Share Your Details", desc: "Provide your name, email and mobile. Our expert will reach out within hours with a tailored checklist." },
+      { n: "02", title: "Submit Documents", desc: "Upload required documents securely. We review everything and confirm completeness before proceeding." },
+      { n: "03", title: "We Handle It", desc: "Our qualified team processes filings and communicates with government bodies on your behalf." },
+      { n: "04", title: "Stay Informed", desc: "Receive real-time updates via SMS, email and notifications until your service is complete." },
+    ];
+
+    const testimonials = [
+      { name: "Dilip Anchekar", company: "Skanda Navia Logistics Pvt Ltd", text: "Outstanding service for our company registration. The team was responsive and handled every detail professionally." },
+      { name: "V.Nair", company: "Skystar Logistics Pvt Ltd", text: "FDI compliance and company formation with overseas directors — handled flawlessly. Highly recommended." },
+      { name: "A.Bhat", company: "Istream Technologies Pvt Ltd", text: "Best Virtual CFO service we've experienced. Transparent, reliable, and genuinely invested in our growth." },
+    ];
+
+    // ─── COMPONENTS ─────────────────────────────────────────────────────────
+
+    function Nav({ accent, navBg }) {
+      const [scrolled, setScrolled] = useState(false);
+      const [menuOpen, setMenuOpen] = useState(false);
+
+      useEffect(() => {
+        const handler = () => setScrolled(window.scrollY > 40);
+        window.addEventListener('scroll', handler);
+        return () => window.removeEventListener('scroll', handler);
+      }, []);
+
+      const bg = navBg === "dark" ? "#0d1b2a" : "#ffffff";
+      const fg = navBg === "dark" ? "#f9f8f6" : "#1a1a2e";
+
+      return (
+        <nav style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+          background: bg,
+          borderBottom: scrolled ? `1px solid ${navBg === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}` : '1px solid transparent',
+          boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.07)' : 'none',
+          transition: 'all 0.3s ease',
+        }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 32, height: 32, background: accent, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="2" width="6" height="6" rx="1" fill="white" opacity="0.9"/>
+                  <rect x="10" y="2" width="6" height="6" rx="1" fill="white" opacity="0.6"/>
+                  <rect x="2" y="10" width="6" height="6" rx="1" fill="white" opacity="0.6"/>
+                  <rect x="10" y="10" width="6" height="6" rx="1" fill="white" opacity="0.9"/>
+                </svg>
+              </div>
+              <span style={{ fontFamily: 'Plus Jakarta Sans', fontWeight: 800, fontSize: 18, color: fg, letterSpacing: '-0.3px' }}>
+                Auditor<span style={{ color: accent }}>Office</span>
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+              {['Services', 'How It Works', 'About', 'Contact'].map(item => (
+                <a key={item} href={`#${item.toLowerCase().replace(/\s+/g,'-')}`}
+                  style={{ fontSize: 14, fontWeight: 500, color: fg, opacity: 0.75, transition: 'opacity 0.2s' }}
+                  onMouseEnter={e => e.target.style.opacity = 1}
+                  onMouseLeave={e => e.target.style.opacity = 0.75}
+                >{item}</a>
+              ))}
+              <a href="#contact" style={{
+                background: accent, color: '#fff', padding: '10px 22px',
+                borderRadius: 8, fontSize: 14, fontWeight: 600,
+                transition: 'opacity 0.2s',
+              }}
+                onMouseEnter={e => e.currentTarget.style.opacity = 0.88}
+                onMouseLeave={e => e.currentTarget.style.opacity = 1}
+              >Free Consultation</a>
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    function Hero({ accent, heroStyle, ctaText, showStats }) {
+      if (heroStyle === "centered") {
+        return (
+          <section style={{
+            minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', textAlign: 'center',
+            background: '#0d1b2a', padding: '120px 32px 80px', position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0, opacity: 0.04,
+              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.5) 39px, rgba(255,255,255,0.5) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.5) 39px, rgba(255,255,255,0.5) 40px)',
+            }}></div>
+            <div style={{ position: 'relative', maxWidth: 780 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `${accent}22`, border: `1px solid ${accent}44`, borderRadius: 40, padding: '6px 16px', marginBottom: 32 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent, display: 'inline-block' }}></span>
+                <span style={{ fontSize: 13, color: accent, fontWeight: 600, letterSpacing: '0.5px' }}>TRUSTED BY 5000+ BUSINESSES</span>
+              </div>
+              <h1 style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 800, color: '#f9f8f6', lineHeight: 1.1, letterSpacing: '-1.5px', marginBottom: 24 }}>
+                Every Compliance.<br />
+                <span style={{ color: accent }}>One Trusted Partner.</span>
+              </h1>
+              <p style={{ fontSize: 18, color: 'rgba(249,248,246,0.65)', lineHeight: 1.7, marginBottom: 48, maxWidth: 560, margin: '0 auto 48px' }}>
+                From company registration to virtual CFO — we handle all your legal, tax and accounting needs so you can focus on building.
+              </p>
+              <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <a href="#contact" style={{ background: accent, color: '#fff', padding: '16px 36px', borderRadius: 10, fontWeight: 700, fontSize: 16, fontFamily: 'Plus Jakarta Sans' }}>{ctaText}</a>
+                <a href="#services" style={{ background: 'rgba(255,255,255,0.07)', color: '#f9f8f6', padding: '16px 36px', borderRadius: 10, fontWeight: 600, fontSize: 16, border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'Plus Jakarta Sans' }}>Explore Services</a>
+              </div>
+            </div>
+            {showStats && <StatsBar accent={accent} dark={true} />}
+          </section>
+        );
+      }
+
+      // Default: split layout
+      return (
+        <section style={{
+          minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr',
+          background: '#0d1b2a', position: 'relative', overflow: 'hidden',
+        }}>
+          {/* Left */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '120px 48px 80px 80px', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `${accent}22`, border: `1px solid ${accent}44`, borderRadius: 40, padding: '6px 16px', marginBottom: 32, alignSelf: 'flex-start' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent, display: 'inline-block' }}></span>
+              <span style={{ fontSize: 12, color: accent, fontWeight: 600, letterSpacing: '0.8px' }}>INDIA'S TRUSTED COMPLIANCE PARTNER</span>
+            </div>
+            <h1 style={{ fontSize: 'clamp(36px, 4vw, 62px)', fontWeight: 800, color: '#f9f8f6', lineHeight: 1.1, letterSpacing: '-1.5px', marginBottom: 24 }}>
+              Your Business<br />
+              Stays <span style={{ color: accent }}>Compliant.</span><br />
+              You Stay Focused.
+            </h1>
+            <p style={{ fontSize: 17, color: 'rgba(249,248,246,0.6)', lineHeight: 1.75, marginBottom: 44, maxWidth: 460 }}>
+              Expert Chartered Accountants and legal professionals handling company registration, GST, income tax, auditing and virtual CFO services — end to end.
+            </p>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+              <a href="#contact" style={{ background: accent, color: '#fff', padding: '15px 32px', borderRadius: 10, fontWeight: 700, fontSize: 15, fontFamily: 'Plus Jakarta Sans', transition: 'opacity 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.opacity = 0.88}
+                onMouseLeave={e => e.currentTarget.style.opacity = 1}
+              >{ctaText}</a>
+              <a href="#services" style={{ background: 'rgba(255,255,255,0.06)', color: '#f9f8f6', padding: '15px 32px', borderRadius: 10, fontWeight: 600, fontSize: 15, border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'Plus Jakarta Sans' }}>View Services</a>
+            </div>
+            {showStats && <StatsBar accent={accent} dark={true} inline={true} />}
+          </div>
+
+          {/* Right — decorative panel */}
+          <div style={{ position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(135deg, rgba(200,134,10,0.08) 0%, rgba(13,27,42,0) 60%)',
+            }}></div>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 60 }}>
+              <ServiceCard accent={accent} />
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function ServiceCard({ accent }) {
+      const highlights = [
+        { label: "Company Registration", tag: "8-12 Days" },
+        { label: "GST Registration", tag: "3–5 Days" },
+        { label: "Income Tax Filing", tag: "Expert-Handled" },
+        { label: "Virtual CFO", tag: "Monthly Plans" },
+        { label: "ROC Compliance", tag: "On-Time Filing" },
+        { label: "FDI Compliance", tag: "Global Clients" },
+      ];
+      return (
+        <div style={{ width: '100%', maxWidth: 400 }}>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '32px 28px', backdropFilter: 'blur(12px)' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(249,248,246,0.4)', letterSpacing: '1px', marginBottom: 20 }}>POPULAR SERVICES</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {highlights.map((h, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 10, padding: '12px 16px',
+                }}>
+                  <span style={{ fontSize: 14, color: 'rgba(249,248,246,0.85)', fontWeight: 500 }}>{h.label}</span>
+                  <span style={{ fontSize: 12, color: accent, fontWeight: 600, background: `${accent}18`, padding: '3px 10px', borderRadius: 20 }}>{h.tag}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 24, padding: '16px', background: `${accent}15`, borderRadius: 12, border: `1px solid ${accent}30` }}>
+              <div style={{ fontSize: 13, color: accent, fontWeight: 700, marginBottom: 4 }}>Free Initial Consultation</div>
+              <div style={{ fontSize: 12, color: 'rgba(249,248,246,0.55)', lineHeight: 1.5 }}>Talk to an expert about your compliance needs — no obligation, no hidden costs.</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function StatsBar({ accent, dark, inline }) {
+      const containerStyle = inline ? {
+        marginTop: 56, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
+        borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 32,
+      } : {
+        maxWidth: 1200, margin: '60px auto 0', padding: '0 32px',
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
+        borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 40,
+      };
+      return (
+        <div style={containerStyle}>
+          {stats.map((s, i) => (
+            <div key={i} style={{ textAlign: inline ? 'left' : 'center', paddingRight: 24, borderRight: i < 3 ? '1px solid rgba(255,255,255,0.08)' : 'none', paddingLeft: i > 0 ? 24 : 0 }}>
+              <div style={{ fontSize: 34, fontWeight: 800, color: accent, fontFamily: 'Plus Jakarta Sans', lineHeight: 1 }}>{s.number}</div>
+              <div style={{ fontSize: 13, color: 'rgba(249,248,246,0.5)', marginTop: 6, fontWeight: 500 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function Services({ accent }) {
+      return (
+        <section id="services" style={{ padding: '100px 32px', background: '#f9f8f6' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ marginBottom: 64 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>WHAT WE DO</div>
+              <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px', lineHeight: 1.15, maxWidth: 520 }}>
+                Complete Business Compliance Under One Roof
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+              {services.map((s, i) => (
+                <div key={i} style={{
+                  background: '#ffffff', borderRadius: 16, padding: '32px 28px',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  transition: 'box-shadow 0.2s, transform 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 40px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
+                >
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: `${accent}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                      {i === 0 && <><path d="M4 11L9 16L18 7" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></>}
+                      {i === 1 && <><rect x="3" y="3" width="16" height="16" rx="3" stroke={accent} strokeWidth="2"/><path d="M7 11h8M11 7v8" stroke={accent} strokeWidth="2" strokeLinecap="round"/></>}
+                      {i === 2 && <><circle cx="11" cy="11" r="8" stroke={accent} strokeWidth="2"/><path d="M11 7v4l3 2" stroke={accent} strokeWidth="2" strokeLinecap="round"/></>}
+                      {i === 3 && <><path d="M5 7h12M5 11h8M5 15h5" stroke={accent} strokeWidth="2" strokeLinecap="round"/></>}
+                    </svg>
+                  </div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0d1b2a', marginBottom: 16, fontFamily: 'Plus Jakarta Sans' }}>{s.category}</h3>
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 9 }}>
+                    {s.items.map((item, j) => (
+                      <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13.5, color: '#4a5568', lineHeight: 1.5 }}>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: accent, marginTop: 7, flexShrink: 0 }}></span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <a href="#contact" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 24, fontSize: 13, fontWeight: 700, color: accent, fontFamily: 'Plus Jakarta Sans' }}>
+                    Get Started
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke={accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function HowItWorks({ accent }) {
+      return (
+        <section id="how-it-works" style={{ padding: '100px 32px', background: '#0d1b2a' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ marginBottom: 72, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>THE PROCESS</div>
+                <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, color: '#f9f8f6', letterSpacing: '-0.8px', lineHeight: 1.15 }}>
+                  Simple. Transparent.<br />Done Right.
+                </h2>
+              </div>
+              <p style={{ maxWidth: 340, fontSize: 15, color: 'rgba(249,248,246,0.5)', lineHeight: 1.7 }}>
+                We've streamlined compliance so you never have to chase paperwork or miss a deadline again.
+              </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 2 }}>
+              {steps.map((s, i) => (
+                <div key={i} style={{ position: 'relative', padding: '40px 32px', borderLeft: '1px solid rgba(255,255,255,0.06)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ fontSize: 48, fontWeight: 800, color: `${accent}20`, fontFamily: 'Plus Jakarta Sans', lineHeight: 1, marginBottom: 20 }}>{s.n}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#f9f8f6', marginBottom: 12, fontFamily: 'Plus Jakarta Sans' }}>{s.title}</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(249,248,246,0.5)', lineHeight: 1.7 }}>{s.desc}</p>
+                  {i < steps.length - 1 && (
+                    <div style={{ position: 'absolute', top: 48, right: -12, width: 24, height: 24, background: '#0d1b2a', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke={accent} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Testimonials({ accent }) {
+      return (
+        <section style={{ padding: '100px 32px', background: '#f9f8f6' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ marginBottom: 64 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>CLIENT STORIES</div>
+              <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px' }}>
+                Trusted by Founders &amp; CFOs
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+              {testimonials.map((t, i) => (
+                <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '36px 32px', border: '1px solid rgba(0,0,0,0.06)' }}>
+                  <div style={{ display: 'flex', gap: 3, marginBottom: 20 }}>
+                    {[...Array(5)].map((_, j) => (
+                      <svg key={j} width="14" height="14" viewBox="0 0 14 14" fill={accent}><polygon points="7,1 9,5 13,5.5 10,8.5 10.8,13 7,11 3.2,13 4,8.5 1,5.5 5,5"/></svg>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 15, color: '#4a5568', lineHeight: 1.75, marginBottom: 28, fontStyle: 'italic' }}>"{t.text}"</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 42, height: 42, borderRadius: '50%', background: `${accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, color: accent, fontFamily: 'Plus Jakarta Sans' }}>
+                      {t.name[0]}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: '#0d1b2a', fontFamily: 'Plus Jakarta Sans' }}>{t.name}</div>
+                      <div style={{ fontSize: 12, color: '#9aafb7', marginTop: 2 }}>{t.company}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function About({ accent }) {
+      return (
+        <section id="about" style={{ padding: '100px 32px', background: '#fff' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>ABOUT US</div>
+              <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px', lineHeight: 1.15, marginBottom: 24 }}>
+                Qualified Experts.<br />Client-First Values.
+              </h2>
+              <p style={{ fontSize: 16, color: '#4a5568', lineHeight: 1.8, marginBottom: 20 }}>
+                Auditor Office is a trusted accounting, auditing, taxation and advisory firm serving startups, SMEs and growing businesses across India and globally.
+              </p>
+              <p style={{ fontSize: 16, color: '#4a5568', lineHeight: 1.8, marginBottom: 36 }}>
+                Our team of Chartered Accountants and legal professionals is committed to making professional compliance accessible, affordable and stress-free — while you focus on building.
+              </p>
+              <div style={{ display: 'flex', gap: 32 }}>
+                {[].map((item, i) => (
+                  <div key={i} style={{ borderLeft: `3px solid ${accent}`, paddingLeft: 16 }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: accent, fontFamily: 'Plus Jakarta Sans' }}>{item.n}</div>
+                    <div style={{ fontSize: 13, color: '#9aafb7', marginTop: 4 }}>{item.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {[
+                { title: "Data Security", desc: "Your documents and information are fully protected, never shared with third parties." },
+                { title: "On-Time Filings", desc: "Zero missed deadlines. We track every due date so you never face penalties." },
+                { title: "Expert Team", desc: "Qualified CAs and legal professionals with deep domain expertise." },
+                { title: "Real-Time Updates", desc: "Status updates via SMS, email and notifications throughout the process." },
+              ].map((item, i) => (
+                <div key={i} style={{ background: '#f9f8f6', borderRadius: 14, padding: '24px 20px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 2, background: accent }}></div>
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0d1b2a', marginBottom: 8, fontFamily: 'Plus Jakarta Sans' }}>{item.title}</div>
+                  <div style={{ fontSize: 13, color: '#718096', lineHeight: 1.6 }}>{item.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Contact({ accent, ctaText }) {
+      const [form, setForm] = useState({ name: '', email: '', phone: '', service: '', message: '' });
+      const [submitted, setSubmitted] = useState(false);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        setSubmitted(true);
+      };
+
+      return (
+        <section id="contact" style={{ padding: '100px 32px', background: '#0d1b2a' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>GET IN TOUCH</div>
+              <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 800, color: '#f9f8f6', letterSpacing: '-0.8px', lineHeight: 1.15, marginBottom: 24 }}>
+                Let's Get Your Business Sorted
+              </h2>
+              <p style={{ fontSize: 16, color: 'rgba(249,248,246,0.55)', lineHeight: 1.8, marginBottom: 44 }}>
+                Share your details and one of our experts will reach out within a few hours with everything you need to get started.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+                {[
+                  { icon: "📍", label: "Address", val: "Office No 614, Nirmal Corporate Center, LBS Road, Mulund West, Mumbai 400080" },
+                  { icon: "✉️", label: "Email", val: "abhijit@auditoroffice.com" },
+                  { icon: "📞", label: "Phone", val: "+91 98205 99996" },
+                ].map((c, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: `${accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{c.icon}</div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(249,248,246,0.4)', letterSpacing: '0.5px', marginBottom: 4 }}>{c.label}</div>
+                      <div style={{ fontSize: 14, color: 'rgba(249,248,246,0.8)', lineHeight: 1.6 }}>{c.val}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '40px 36px' }}>
+              {submitted ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: `${accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M5 13L10 18L21 8" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <h3 style={{ fontSize: 22, fontWeight: 800, color: '#f9f8f6', marginBottom: 10, fontFamily: 'Plus Jakarta Sans' }}>We'll be in touch shortly!</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(249,248,246,0.5)', lineHeight: 1.6 }}>Our expert will call and email you with the required document list.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#f9f8f6', marginBottom: 8, fontFamily: 'Plus Jakarta Sans' }}>Free Consultation</h3>
+                  {[
+                    { key: 'name', label: 'Full Name', type: 'text', placeholder: 'Your full name' },
+                    { key: 'email', label: 'Email Address', type: 'email', placeholder: 'you@company.com' },
+                    { key: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '+91 98xxx xxxxx' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(249,248,246,0.5)', marginBottom: 8, letterSpacing: '0.3px' }}>{f.label}</label>
+                      <input
+                        type={f.type} placeholder={f.placeholder} required
+                        value={form[f.key]}
+                        onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))}
+                        style={{
+                          width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
+                          background: 'rgba(255,255,255,0.05)', color: '#f9f8f6', fontSize: 14, outline: 'none',
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(249,248,246,0.5)', marginBottom: 8 }}>Service Needed</label>
+                    <select value={form.service} onChange={e => setForm(p => ({...p, service: e.target.value}))}
+                      style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#1a2e42', color: form.service ? '#f9f8f6' : 'rgba(249,248,246,0.4)', fontSize: 14, outline: 'none' }}>
+                      <option value="">Select a service...</option>
+                      <option>Company Registration</option>
+                      <option>GST Registration / Filing</option>
+                      <option>Income Tax Returns</option>
+                      <option>Virtual CFO</option>
+                      <option>ROC Compliance</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <button type="submit" style={{
+                    background: accent, color: '#fff', padding: '14px', borderRadius: 10,
+                    fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer',
+                    fontFamily: 'Plus Jakarta Sans', marginTop: 4, transition: 'opacity 0.2s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = 0.88}
+                    onMouseLeave={e => e.currentTarget.style.opacity = 1}
+                  >{ctaText}</button>
+                  <p style={{ fontSize: 11, color: 'rgba(249,248,246,0.3)', textAlign: 'center', lineHeight: 1.5 }}>
+                    Your information is confidential and never shared with third parties.
+                  </p>
+                </form>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Footer({ accent }) {
+      const cols = [
+        { title: "Start a Business", href: "#services", links: ["Pvt Ltd Registration", "LLP Registration", "OPC Registration", "Section 8 Company", "Startup India"] },
+        { title: "Tax & GST", href: "#services", links: ["GST Registration", "GST Filing", "Income Tax Return", "TDS Filing", "Tax Advisory"] },
+        { title: "Compliance", href: "#services", links: ["ROC Filings", "Annual Compliance", "IE Code", "MSME Registration"] },
+        { title: "Company", links: [
+          { label: "About Us", href: "#about" },
+          { label: "How It Works", href: "#how-it-works" },
+          { label: "Client Stories", href: "#contact" },
+          { label: "Contact", href: "#contact" },
+        ] },
+      ];
+      return (
+        <footer style={{ background: '#080f1a', padding: '72px 32px 32px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gap: 48, marginBottom: 64 }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                  <div style={{ width: 32, height: 32, background: accent, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="2" y="2" width="6" height="6" rx="1" fill="white" opacity="0.9"/>
+                      <rect x="10" y="2" width="6" height="6" rx="1" fill="white" opacity="0.6"/>
+                      <rect x="2" y="10" width="6" height="6" rx="1" fill="white" opacity="0.6"/>
+                      <rect x="10" y="10" width="6" height="6" rx="1" fill="white" opacity="0.9"/>
+                    </svg>
+                  </div>
+                  <span style={{ fontFamily: 'Plus Jakarta Sans', fontWeight: 800, fontSize: 18, color: '#f9f8f6' }}>
+                    Auditor<span style={{ color: accent }}>Office</span>
+                  </span>
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(249,248,246,0.4)', lineHeight: 1.8, maxWidth: 260 }}>
+                  Trusted accounting, legal and compliance services for startups and businesses across India and worldwide.
+                </p>
+              </div>
+              {cols.map((col, i) => (
+                <div key={i}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(249,248,246,0.5)', letterSpacing: '1px', marginBottom: 18 }}>{col.title.toUpperCase()}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {col.links.map((l, j) => {
+                      const label = typeof l === 'string' ? l : l.label;
+                      const href = typeof l === 'string' ? col.href : l.href;
+                      return (
+                      <a key={j} href={href} style={{ fontSize: 13, color: 'rgba(249,248,246,0.45)', transition: 'color 0.2s' }}
+                        onMouseEnter={e => e.target.style.color = '#f9f8f6'}
+                        onMouseLeave={e => e.target.style.color = 'rgba(249,248,246,0.45)'}
+                      >{label}</a>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+              <span style={{ fontSize: 13, color: 'rgba(249,248,246,0.3)' }}>© 2026 Auditor Office. All rights reserved.</span>
+              <div style={{ display: 'flex', gap: 24 }}>
+                {['Privacy Policy', 'Terms of Service', 'Disclaimer'].map(l => (
+                  <a key={l} href="#" style={{ fontSize: 13, color: 'rgba(249,248,246,0.3)' }}>{l}</a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // ─── MAIN APP ────────────────────────────────────────────────────────────
+    function App() {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const accent = tweaks.accentColor;
+
+      return (
+        <>
+          <Nav accent={accent} navBg={tweaks.navBg} />
+          <Hero accent={accent} heroStyle={tweaks.heroStyle} ctaText={tweaks.ctaText} showStats={tweaks.showStats} />
+          <Services accent={accent} />
+          <HowItWorks accent={accent} />
+          <Testimonials accent={accent} />
+          <About accent={accent} />
+          <Contact accent={accent} ctaText={tweaks.ctaText} />
+          <Footer accent={accent} />
+
+          <TweaksPanel>
+            <TweakSection title="Brand">
+              <TweakColor id="accentColor" label="Accent Color" />
+              <TweakText id="ctaText" label="CTA Button Text" />
+            </TweakSection>
+            <TweakSection title="Layout">
+              <TweakRadio id="heroStyle" label="Hero Layout" options={[{value:"split",label:"Split"},{value:"centered",label:"Split"}]} />
+              <TweakRadio id="navBg" label="Nav Background" options={[{value:"white",label:"White"},{value:"dark",label:"Dark"}]} />
+              <TweakToggle id="showStats" label="Show Stats Bar" />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
