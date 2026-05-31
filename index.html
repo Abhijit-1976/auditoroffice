@@ -32,6 +32,18 @@
 
     const { useState, useEffect } = React;
 
+    // ─── RESPONSIVE HOOK ─────────────────────────────────────────────────────
+    function useWindowWidth() {
+      const [w, setW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+      useEffect(() => {
+        const h = () => setW(window.innerWidth);
+        window.addEventListener('resize', h);
+        return () => window.removeEventListener('resize', h);
+      }, []);
+      return w;
+    }
+    // breakpoints: mobile < 768, tablet 768–1023, desktop ≥ 1024
+
     // ─── DATA ───────────────────────────────────────────────────────────────
     const pillars = [
       {
@@ -79,21 +91,26 @@
     // ─── NAV ────────────────────────────────────────────────────────────────
     function Nav({ accent }) {
       const [scrolled, setScrolled] = useState(false);
+      const [open, setOpen] = useState(false);
+      const width = useWindowWidth();
+      const isMobile = width < 900;
       useEffect(() => {
         const h = () => setScrolled(window.scrollY > 40);
         window.addEventListener('scroll', h);
         return () => window.removeEventListener('scroll', h);
       }, []);
+      const links = [['The Difference','#difference'],['Our Pillars','#pillars'],['Philosophy','#philosophy'],['Contact','#contact']];
+      const solid = scrolled || (isMobile && open);
       return (
         <nav style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: scrolled ? 'rgba(13,27,42,0.92)' : 'transparent',
-          backdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+          background: solid ? 'rgba(13,27,42,0.92)' : 'transparent',
+          backdropFilter: solid ? 'blur(12px)' : 'none',
+          borderBottom: solid ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
           transition: 'all 0.3s ease',
         }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
-            <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 20px' : '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: isMobile ? 64 : 72 }}>
+            <a href="#top" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2.5, background: accent, borderRadius: 6, padding: 6 }}>
                 <span style={{ width: 11, height: 11, borderRadius: 2, background: '#fff' }}></span>
                 <span style={{ width: 11, height: 11, borderRadius: 2, background: '#fff', opacity: 0.55 }}></span>
@@ -104,52 +121,78 @@
                 Auditor<span style={{ color: accent }}>Office</span>
               </span>
             </a>
-            <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-              {[['The Difference','#difference'],['Our Pillars','#pillars'],['Philosophy','#philosophy'],['Contact','#contact']].map(([label, href]) => (
-                <a key={href} href={href}
-                  style={{ fontSize: 14, fontWeight: 500, color: '#f9f8f6', opacity: 0.7, transition: 'opacity 0.2s' }}
-                  onMouseEnter={e => e.target.style.opacity = 1}
-                  onMouseLeave={e => e.target.style.opacity = 0.7}
-                >{label}</a>
-              ))}
-              <a href="#contact" style={{ background: accent, color: '#fff', padding: '10px 22px', borderRadius: 8, fontSize: 14, fontWeight: 600, transition: 'opacity 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = 0.88}
-                onMouseLeave={e => e.currentTarget.style.opacity = 1}
-              >Book a Consultation</a>
-            </div>
+
+            {!isMobile && (
+              <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+                {links.map(([label, href]) => (
+                  <a key={href} href={href}
+                    style={{ fontSize: 14, fontWeight: 500, color: '#f9f8f6', opacity: 0.7, transition: 'opacity 0.2s' }}
+                    onMouseEnter={e => e.target.style.opacity = 1}
+                    onMouseLeave={e => e.target.style.opacity = 0.7}
+                  >{label}</a>
+                ))}
+                <a href="#contact" style={{ background: accent, color: '#fff', padding: '10px 22px', borderRadius: 8, fontSize: 14, fontWeight: 600, transition: 'opacity 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = 0.88}
+                  onMouseLeave={e => e.currentTarget.style.opacity = 1}
+                >Book a Consultation</a>
+              </div>
+            )}
+
+            {isMobile && (
+              <button aria-label="Menu" onClick={() => setOpen(o => !o)} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 9, width: 42, height: 42, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4.5, cursor: 'pointer', padding: 0 }}>
+                <span style={{ width: 18, height: 2, borderRadius: 2, background: '#f9f8f6', transition: 'transform 0.25s', transform: open ? 'translateY(6.5px) rotate(45deg)' : 'none' }}></span>
+                <span style={{ width: 18, height: 2, borderRadius: 2, background: '#f9f8f6', transition: 'opacity 0.2s', opacity: open ? 0 : 1 }}></span>
+                <span style={{ width: 18, height: 2, borderRadius: 2, background: '#f9f8f6', transition: 'transform 0.25s', transform: open ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }}></span>
+              </button>
+            )}
           </div>
+
+          {isMobile && (
+            <div style={{ overflow: 'hidden', maxHeight: open ? 360 : 0, transition: 'max-height 0.32s ease', background: 'rgba(13,27,42,0.97)', backdropFilter: 'blur(12px)', borderTop: open ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
+              <div style={{ padding: '12px 20px 22px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {links.map(([label, href]) => (
+                  <a key={href} href={href} onClick={() => setOpen(false)}
+                    style={{ fontSize: 16, fontWeight: 500, color: '#f9f8f6', opacity: 0.85, padding: '13px 4px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                  >{label}</a>
+                ))}
+                <a href="#contact" onClick={() => setOpen(false)} style={{ background: accent, color: '#fff', padding: '14px', borderRadius: 9, fontSize: 15, fontWeight: 700, textAlign: 'center', marginTop: 12, fontFamily: 'Plus Jakarta Sans' }}>Book a Consultation</a>
+              </div>
+            </div>
+          )}
         </nav>
       );
     }
 
     // ─── HERO ───────────────────────────────────────────────────────────────
     function Hero({ accent, ctaText }) {
+      const width = useWindowWidth();
+      const isMobile = width < 768;
       return (
         <section id="top" style={{ minHeight: '100vh', background: '#0d1b2a', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
           <div style={{ position: 'absolute', inset: 0, opacity: 0.045, backgroundImage: 'repeating-linear-gradient(0deg, transparent 0 47px, rgba(255,255,255,.6) 47px 48px), repeating-linear-gradient(90deg, transparent 0 47px, rgba(255,255,255,.6) 47px 48px)' }}></div>
           <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 600, height: 600, borderRadius: '50%', background: `radial-gradient(circle, ${accent}22 0%, transparent 65%)` }}></div>
-          <div style={{ position: 'relative', maxWidth: 1200, margin: '0 auto', padding: '140px 32px 90px', width: '100%' }}>
+          <div style={{ position: 'relative', maxWidth: 1200, margin: '0 auto', padding: isMobile ? '120px 20px 70px' : '140px 32px 90px', width: '100%' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: `${accent}18`, border: `1px solid ${accent}40`, borderRadius: 40, padding: '7px 18px', marginBottom: 34 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent }}></span>
-              <span style={{ fontSize: 12, color: accent, fontWeight: 600, letterSpacing: '1px' }}>STRATEGIC TAX ADVISORY &amp; CORPORATE COMPLIANCE</span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent, flexShrink: 0 }}></span>
+              <span style={{ fontSize: isMobile ? 10.5 : 12, color: accent, fontWeight: 600, letterSpacing: '1px' }}>STRATEGIC TAX ADVISORY &amp; CORPORATE COMPLIANCE</span>
             </div>
-            <h1 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 800, color: '#f9f8f6', lineHeight: 1.04, letterSpacing: '-2px', maxWidth: 900 }}>
+            <h1 style={{ fontSize: 'clamp(34px, 6vw, 76px)', fontWeight: 800, color: '#f9f8f6', lineHeight: 1.04, letterSpacing: isMobile ? '-1px' : '-2px', maxWidth: 900 }}>
               Compliance is the Foundation.<br /><span style={{ color: accent }}>Growth is the Objective.</span>
             </h1>
-            <p style={{ fontSize: 19, color: 'rgba(249,248,246,0.62)', lineHeight: 1.7, marginTop: 28, maxWidth: 620 }}>
+            <p style={{ fontSize: isMobile ? 16 : 19, color: 'rgba(249,248,246,0.62)', lineHeight: 1.7, marginTop: 28, maxWidth: 620 }}>
               We don't just file your past — we protect your future. AuditorOffice provides comprehensive tax advisory and bulletproof corporate compliance, giving you the freedom to scale with absolute peace of mind.
             </p>
-            <div style={{ display: 'flex', gap: 16, marginTop: 44, flexWrap: 'wrap' }}>
-              <a href="#contact" style={{ background: accent, color: '#fff', padding: '17px 34px', borderRadius: 10, fontWeight: 700, fontSize: 16, fontFamily: 'Plus Jakarta Sans', transition: 'opacity 0.2s' }}
+            <div style={{ display: 'flex', gap: isMobile ? 12 : 16, marginTop: 44, flexWrap: 'wrap' }}>
+              <a href="#contact" style={{ background: accent, color: '#fff', padding: isMobile ? '15px 26px' : '17px 34px', borderRadius: 10, fontWeight: 700, fontSize: isMobile ? 15 : 16, fontFamily: 'Plus Jakarta Sans', transition: 'opacity 0.2s', textAlign: 'center', flex: isMobile ? '1 1 100%' : '0 1 auto' }}
                 onMouseEnter={e => e.currentTarget.style.opacity = 0.88}
                 onMouseLeave={e => e.currentTarget.style.opacity = 1}
               >{ctaText}</a>
-              <a href="#pillars" style={{ background: 'rgba(255,255,255,0.06)', color: '#f9f8f6', padding: '17px 34px', borderRadius: 10, fontWeight: 600, fontSize: 16, border: '1px solid rgba(255,255,255,0.14)', fontFamily: 'Plus Jakarta Sans' }}>Explore Our Compliance Framework</a>
+              <a href="#pillars" style={{ background: 'rgba(255,255,255,0.06)', color: '#f9f8f6', padding: isMobile ? '15px 26px' : '17px 34px', borderRadius: 10, fontWeight: 600, fontSize: isMobile ? 15 : 16, border: '1px solid rgba(255,255,255,0.14)', fontFamily: 'Plus Jakarta Sans', textAlign: 'center', flex: isMobile ? '1 1 100%' : '0 1 auto' }}>Explore Our Compliance Framework</a>
             </div>
-            <div style={{ marginTop: 72, display: 'grid', gridTemplateColumns: 'repeat(4, auto)', gap: 56, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 36 }}>
+            <div style={{ marginTop: isMobile ? 52 : 72, display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, auto)', gap: isMobile ? '28px 24px' : 56, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 36 }}>
               {stats.map((s, i) => (
                 <div key={i}>
-                  <div style={{ fontSize: 34, fontWeight: 800, color: accent, fontFamily: 'Plus Jakarta Sans', lineHeight: 1 }}>{s.number}</div>
+                  <div style={{ fontSize: isMobile ? 30 : 34, fontWeight: 800, color: accent, fontFamily: 'Plus Jakarta Sans', lineHeight: 1 }}>{s.number}</div>
                   <div style={{ fontSize: 13, color: 'rgba(249,248,246,0.5)', marginTop: 8, fontWeight: 500 }}>{s.label}</div>
                 </div>
               ))}
@@ -161,35 +204,61 @@
 
     // ─── THE SHIFT (comparison) ─────────────────────────────────────────────
     function Difference({ accent }) {
+      const width = useWindowWidth();
+      const isMobile = width < 768;
       return (
-        <section id="difference" style={{ padding: '110px 32px', background: '#f9f8f6' }}>
+        <section id="difference" style={{ padding: isMobile ? '72px 20px' : '110px 32px', background: '#f9f8f6' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 64, maxWidth: 640, marginLeft: 'auto', marginRight: 'auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: isMobile ? 40 : 64, maxWidth: 640, marginLeft: 'auto', marginRight: 'auto' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>THE SHIFT</div>
-              <h2 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px', lineHeight: 1.15 }}>
+              <h2 style={{ fontSize: 'clamp(26px, 4vw, 46px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px', lineHeight: 1.15 }}>
                 Why Businesses Choose a Partner, Not a Filer
               </h2>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(13,27,42,0.1)' }}>
-              <div style={{ padding: '24px 32px', background: '#efece7', borderRight: '1px solid rgba(13,27,42,0.08)' }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#6b7785', fontFamily: 'Plus Jakarta Sans', letterSpacing: '0.3px' }}>Traditional CA Firms</span>
-              </div>
-              <div style={{ padding: '24px 32px', background: '#0d1b2a' }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: accent, fontFamily: 'Plus Jakarta Sans', letterSpacing: '0.3px' }}>The AuditorOffice Approach</span>
-              </div>
-              {shift.map((row, i) => (
-                <React.Fragment key={i}>
-                  <div style={{ padding: '28px 32px', background: '#fff', borderRight: '1px solid rgba(13,27,42,0.08)', borderTop: '1px solid rgba(13,27,42,0.06)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                    <span style={{ color: '#c0c5cc', fontSize: 18, lineHeight: 1.3, flexShrink: 0 }}>✕</span>
-                    <span style={{ fontSize: 15, color: '#6b7785', lineHeight: 1.6 }}>{row.trad}</span>
+
+            {isMobile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {shift.map((row, i) => (
+                  <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(13,27,42,0.1)' }}>
+                    <div style={{ padding: '18px 20px', background: '#fff', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <span style={{ color: '#c0c5cc', fontSize: 16, flexShrink: 0, lineHeight: 1.4 }}>✕</span>
+                      <div>
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: '#9aafb7', letterSpacing: '0.5px', marginBottom: 5, fontFamily: 'Plus Jakarta Sans' }}>TRADITIONAL CA FIRMS</div>
+                        <span style={{ fontSize: 14, color: '#6b7785', lineHeight: 1.55 }}>{row.trad}</span>
+                      </div>
+                    </div>
+                    <div style={{ padding: '18px 20px', background: '#0d1b2a', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <svg width="17" height="17" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><path d="M3 9l4 4 8-9" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <div>
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: accent, letterSpacing: '0.5px', marginBottom: 5, fontFamily: 'Plus Jakarta Sans' }}>THE AUDITOROFFICE APPROACH</div>
+                        <span style={{ fontSize: 14, color: 'rgba(249,248,246,0.88)', lineHeight: 1.55 }}>{row.ours}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ padding: '28px 32px', background: 'rgba(13,27,42,0.97)', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><path d="M3 9l4 4 8-9" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    <span style={{ fontSize: 15, color: 'rgba(249,248,246,0.88)', lineHeight: 1.6 }}>{row.ours}</span>
-                  </div>
-                </React.Fragment>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(13,27,42,0.1)' }}>
+                <div style={{ padding: '24px 32px', background: '#efece7', borderRight: '1px solid rgba(13,27,42,0.08)' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#6b7785', fontFamily: 'Plus Jakarta Sans', letterSpacing: '0.3px' }}>Traditional CA Firms</span>
+                </div>
+                <div style={{ padding: '24px 32px', background: '#0d1b2a' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: accent, fontFamily: 'Plus Jakarta Sans', letterSpacing: '0.3px' }}>The AuditorOffice Approach</span>
+                </div>
+                {shift.map((row, i) => (
+                  <React.Fragment key={i}>
+                    <div style={{ padding: '28px 32px', background: '#fff', borderRight: '1px solid rgba(13,27,42,0.08)', borderTop: '1px solid rgba(13,27,42,0.06)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                      <span style={{ color: '#c0c5cc', fontSize: 18, lineHeight: 1.3, flexShrink: 0 }}>✕</span>
+                      <span style={{ fontSize: 15, color: '#6b7785', lineHeight: 1.6 }}>{row.trad}</span>
+                    </div>
+                    <div style={{ padding: '28px 32px', background: 'rgba(13,27,42,0.97)', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><path d="M3 9l4 4 8-9" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize: 15, color: 'rgba(249,248,246,0.88)', lineHeight: 1.6 }}>{row.ours}</span>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       );
@@ -197,13 +266,15 @@
 
     // ─── PILLARS ────────────────────────────────────────────────────────────
     function Pillars({ accent }) {
+      const width = useWindowWidth();
+      const isMobile = width < 768;
       return (
-        <section id="pillars" style={{ padding: '110px 32px', background: '#0d1b2a' }}>
+        <section id="pillars" style={{ padding: isMobile ? '72px 20px' : '110px 32px', background: '#0d1b2a' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <div style={{ marginBottom: 64, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+            <div style={{ marginBottom: isMobile ? 40 : 64, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>OUR CORE PILLARS</div>
-                <h2 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 800, color: '#f9f8f6', letterSpacing: '-0.8px', lineHeight: 1.15 }}>
+                <h2 style={{ fontSize: 'clamp(26px, 4vw, 46px)', fontWeight: 800, color: '#f9f8f6', letterSpacing: '-0.8px', lineHeight: 1.15 }}>
                   Premium Solutions,<br />Not Standalone Forms
                 </h2>
               </div>
@@ -211,11 +282,11 @@
                 Every registration and filing lives inside a larger strategy — engineered to keep you protected and ready to scale.
               </p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 24 }}>
               {pillars.map((p, i) => (
                 <div key={i} style={{
                   background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 18, padding: '40px 32px', display: 'flex', flexDirection: 'column',
+                  borderRadius: 18, padding: isMobile ? '32px 26px' : '40px 32px', display: 'flex', flexDirection: 'column',
                   transition: 'background 0.2s, transform 0.2s',
                 }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
@@ -243,17 +314,19 @@
 
     // ─── PHILOSOPHY / MESSAGE BANNER ────────────────────────────────────────
     function Philosophy({ accent }) {
+      const width = useWindowWidth();
+      const isMobile = width < 768;
       return (
-        <section id="philosophy" style={{ padding: '120px 32px', background: '#f9f8f6' }}>
+        <section id="philosophy" style={{ padding: isMobile ? '76px 20px' : '120px 32px', background: '#f9f8f6' }}>
           <div style={{ maxWidth: 980, margin: '0 auto', textAlign: 'center' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 28 }}>OUR PHILOSOPHY</div>
-            <h2 style={{ fontSize: 'clamp(28px, 4.5vw, 52px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: 36 }}>
+            <h2 style={{ fontSize: 'clamp(25px, 4.5vw, 52px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: 36 }}>
               "When your compliance is flawless,<br />your business becomes <span style={{ color: accent }}>unstoppable</span>."
             </h2>
-            <p style={{ fontSize: 18, color: '#6b7785', lineHeight: 1.8, maxWidth: 720, margin: '0 auto' }}>
+            <p style={{ fontSize: isMobile ? 16 : 18, color: '#6b7785', lineHeight: 1.8, maxWidth: 720, margin: '0 auto' }}>
               Many owners see compliance as a burden — a box to check. We see it as a launchpad. Clean books and perfect legal standing are exactly what banks, investors and large clients look for before doing business with you. We build that trust on your behalf.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 64, textAlign: 'left' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 16 : 24, marginTop: isMobile ? 44 : 64, textAlign: 'left' }}>
               {[
                 { t: "Investor-Ready", d: "Compliance that withstands the scrutiny of due diligence and funding rounds." },
                 { t: "Bank-Credible", d: "Clean records that unlock credit lines and stronger lending terms." },
@@ -275,16 +348,18 @@
 
     // ─── TESTIMONIALS ───────────────────────────────────────────────────────
     function Testimonials({ accent }) {
+      const width = useWindowWidth();
+      const isMobile = width < 768;
       return (
-        <section style={{ padding: '110px 32px', background: '#fff' }}>
+        <section style={{ padding: isMobile ? '72px 20px' : '110px 32px', background: '#fff' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <div style={{ marginBottom: 64 }}>
+            <div style={{ marginBottom: isMobile ? 40 : 64 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 14 }}>CLIENT PARTNERSHIPS</div>
-              <h2 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px' }}>
+              <h2 style={{ fontSize: 'clamp(26px, 4vw, 46px)', fontWeight: 800, color: '#0d1b2a', letterSpacing: '-0.8px' }}>
                 Trusted by Founders &amp; Boards
               </h2>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 24 }}>
               {testimonials.map((t, i) => (
                 <div key={i} style={{ background: '#f9f8f6', borderRadius: 16, padding: '36px 32px', border: '1px solid rgba(13,27,42,0.06)' }}>
                   <div style={{ display: 'flex', gap: 3, marginBottom: 20 }}>
@@ -312,15 +387,17 @@
     function Contact({ accent, ctaText }) {
       const [form, setForm] = useState({ name: '', email: '', phone: '', service: '' });
       const [submitted, setSubmitted] = useState(false);
+      const width = useWindowWidth();
+      const isMobile = width < 900;
       return (
-        <section id="contact" style={{ padding: '110px 32px', background: '#0d1b2a' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+        <section id="contact" style={{ padding: isMobile ? '72px 20px' : '110px 32px', background: '#0d1b2a' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 44 : 80, alignItems: 'start' }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: '1.5px', marginBottom: 16 }}>BOOK A COMPLIANCE AUDIT</div>
-              <h2 style={{ fontSize: 'clamp(28px, 3.6vw, 46px)', fontWeight: 800, color: '#f9f8f6', letterSpacing: '-0.8px', lineHeight: 1.15, marginBottom: 22 }}>
+              <h2 style={{ fontSize: 'clamp(26px, 3.6vw, 46px)', fontWeight: 800, color: '#f9f8f6', letterSpacing: '-0.8px', lineHeight: 1.15, marginBottom: 22 }}>
                 Ready to lift the burden of compliance off your shoulders?
               </h2>
-              <p style={{ fontSize: 17, color: 'rgba(249,248,246,0.55)', lineHeight: 1.8, marginBottom: 44 }}>
+              <p style={{ fontSize: isMobile ? 16 : 17, color: 'rgba(249,248,246,0.55)', lineHeight: 1.8, marginBottom: isMobile ? 32 : 44 }}>
                 Let's talk about how we can protect your business and accelerate your growth. Share your details and a senior advisor will reach out personally.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
@@ -339,7 +416,7 @@
                 ))}
               </div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '40px 36px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: isMobile ? '28px 22px' : '40px 36px' }}>
               {submitted ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                   <div style={{ width: 56, height: 56, borderRadius: '50%', background: `${accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
@@ -359,13 +436,13 @@
                     <div key={f.key}>
                       <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(249,248,246,0.5)', marginBottom: 8 }}>{f.label}</label>
                       <input type={f.type} placeholder={f.ph} required value={form[f.key]} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))}
-                        style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: '#f9f8f6', fontSize: 14, outline: 'none' }} />
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: '#f9f8f6', fontSize: 16, outline: 'none' }} />
                     </div>
                   ))}
                   <div>
                     <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(249,248,246,0.5)', marginBottom: 8 }}>Area of Interest</label>
                     <select value={form.service} onChange={e => setForm(p => ({...p, service: e.target.value}))}
-                      style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#1a2e42', color: form.service ? '#f9f8f6' : 'rgba(249,248,246,0.4)', fontSize: 14, outline: 'none' }}>
+                      style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#1a2e42', color: form.service ? '#f9f8f6' : 'rgba(249,248,246,0.4)', fontSize: 16, outline: 'none' }}>
                       <option value="">Select an area...</option>
                       <option>Strategic Tax Advisory</option>
                       <option>Corporate Governance &amp; Compliance</option>
@@ -388,14 +465,16 @@
 
     // ─── FOOTER ─────────────────────────────────────────────────────────────
     function Footer({ accent }) {
+      const width = useWindowWidth();
+      const isMobile = width < 768;
       const cols = [
         { title: "Our Pillars", href: "#pillars", links: ["Strategic Tax Advisory", "Corporate Governance", "Scaling & Growth Compliance", "Audit Readiness"] },
         { title: "Firm", links: [{ label: "The Difference", href: "#difference" }, { label: "Our Philosophy", href: "#philosophy" }, { label: "Client Partnerships", href: "#contact" }, { label: "Contact", href: "#contact" }] },
       ];
       return (
-        <footer style={{ background: '#080f1a', padding: '72px 32px 32px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <footer style={{ background: '#080f1a', padding: isMobile ? '52px 20px 28px' : '72px 32px 32px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 56, marginBottom: 60 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr', gap: isMobile ? 36 : 56, marginBottom: isMobile ? 44 : 60 }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 20 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2.5, background: accent, borderRadius: 6, padding: 6 }}>
